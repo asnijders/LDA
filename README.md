@@ -1,7 +1,7 @@
 # Latent Dirichlet Allocation
 This repository implements Latent Dirichlet Allocation in Python 3, using strictly Python/NumPy routines.
 
-Current version supports:
+Current version supports posterior inference via:
 - Gibbs Sampling
 
 I might expand the code at a later point such that the model can also use black-box inference to model the posterior distribution.
