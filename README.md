@@ -7,5 +7,5 @@ Current version supports:
 I might expand the code at a later point such that the model can also use black-box inference to model the posterior distribution.
 
 I largely relied on the following two resources for implementing this algorithm:
-- A Theoretical and Practical ImplementationTutorial on Topic Modeling and Gibbs Sampling
-- Latent Dirichlet Allocation Using Gibbs Sampling
+- [```A Theoretical and Practical ImplementationTutorial on Topic Modeling and Gibbs Sampling```](https://u.cs.biu.ac.il/~89-680/darling-lda.pdf)
+- [```Latent Dirichlet Allocation Using Gibbs Sampling```](https://ethen8181.github.io/machine-learning/clustering_old/topic_model/LDA.html)
