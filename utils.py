@@ -5,6 +5,7 @@ class DataModule():
     This class loads (a subset) of the corpus
     """
     def __init__(self, num_docs):
+
         """
         This function initializes the datamodule class
         :param num_docs: number of documents to load from json

@@ -1,5 +1,7 @@
 from utils import DataModule
+
 import numpy as np
+import argparse
 
 class LDA():
 
@@ -95,7 +97,7 @@ class LDA():
                     self.n_topic_word[topic][word] += 1
                     self.n_topic[topic] += 1
 
-            if m % eval_every == 0: # print topics every <eval_every> iterations
+            if m % eval_every == 0 and m != 0: # print topics every <eval_every> iterations
                 self.top_words(num_words=num_words)
 
     def top_words(self, num_words):
@@ -105,24 +107,62 @@ class LDA():
         :return: None
         """
 
-        for k in range(1):
+        for k in range(3):
             normalized_topic = [count/sum(self.n_topic_word[k]) for count in self.n_topic_word[k]]
             top_word_ids = np.asarray(normalized_topic).argsort()[-num_words:][::-1]
 
             print('words for 1st topic: ')
             print([self.id2word[id] for id in top_word_ids])
 
-if __name__ == '__main__':
+def main(config):
+
+    # print CLI args
+    print(' ')
+    for arg in vars(args):
+        print(str(arg) + ': ' + str(getattr(args, arg)))
+    print(' ')
 
     # load first 500 documents from corpus
-    dataset = DataModule(num_docs=500)
+    dataset = DataModule(num_docs=config.num_docs)
+
+    print('\nVocabulary size: {} unique tokens\n'.format(len(dataset.vocab)))
+
     # initialise LDA model
     LDAmodel = LDA(dataset=dataset,
-                   num_topics=25,
-                   alpha=1,
-                   beta=1)
+                   num_topics=config.num_topics,
+                   alpha=config.alpha,
+                   beta=config.beta)
     # Perform posterior inference
-    LDAmodel.train(iterations=500,
-                   eval_every=25,
-                   num_words =20)
-    
+    LDAmodel.train(iterations=config.iterations,
+                   eval_every=config.eval_every,
+                   num_words =config.num_words)
+
+if __name__ == '__main__':
+
+    # Feel free to add more argument parameters
+    config = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    # data related parameters
+    config.add_argument('--num_docs', default=500, type=int,
+                        help='number of documents to read')
+
+    # model related parameters
+    config.add_argument('--num_topics', default=25, type=int,
+                        help='Number of topics to be learned')
+    config.add_argument('--alpha', default=1.0, type=float,
+                        help='Alpha parameter')
+    config.add_argument('--beta', default=1.0, type=float,
+                        help='Beta parameter')
+
+    # train related parameters
+    config.add_argument('--iterations', default=500, type=int,
+                        help='Number of iterations over corpus')
+    config.add_argument('--eval_every', default=10, type=int,
+                        help='Print topics at intervals of ..')
+    config.add_argument('--num_words', default=20, type=int,
+                        help='Number of words to print per topic')
+
+    args = config.parse_args()
+
+    main(args)
