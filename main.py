@@ -2,6 +2,7 @@ from utils import DataModule
 
 import numpy as np
 import argparse
+from tqdm import tqdm
 
 class LDA():
 
@@ -59,10 +60,8 @@ class LDA():
         :param num_words: amount of words printed per evaluation
         :return: None
         """
-
-        for m in range(iterations): # over m iterations
-
-            print('Beginning iteration: {}'.format(m))
+        print('Beginning training..')
+        for m in tqdm(range(iterations)): # over m iterations
 
             for d in range(self.num_docs): # over d documents in corpus
 
@@ -107,11 +106,11 @@ class LDA():
         :return: None
         """
 
-        for k in range(3):
+        for k in range(0,self.num_topics,8):
             normalized_topic = [count/sum(self.n_topic_word[k]) for count in self.n_topic_word[k]]
             top_word_ids = np.asarray(normalized_topic).argsort()[-num_words:][::-1]
 
-            print('words for 1st topic: ')
+            print('words for topic {}: '.format(k))
             print([self.id2word[id] for id in top_word_ids])
 
 def main(config):
@@ -122,10 +121,11 @@ def main(config):
         print(str(arg) + ': ' + str(getattr(args, arg)))
     print(' ')
 
-    # load first 500 documents from corpus
+    # load and pre-process first num_docs documents from corpus
     dataset = DataModule(num_docs=config.num_docs,
-                         threshold=config.threshold)
-
+                         upper=config.upper,
+                         lower=config.lower,
+                         stemmer=config.stemmer)
     print('Vocabulary size: {} unique tokens\n'.format(len(dataset.vocab)))
 
     # initialise LDA model
@@ -133,22 +133,26 @@ def main(config):
                    num_topics=config.num_topics,
                    alpha=config.alpha,
                    beta=config.beta)
-    # Perform posterior inference
+
+    # train model
     LDAmodel.train(iterations=config.iterations,
                    eval_every=config.eval_every,
                    num_words =config.num_words)
 
 if __name__ == '__main__':
 
-    # Feel free to add more argument parameters
     config = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     # data related parameters
     config.add_argument('--num_docs', default=500, type=int,
                         help='number of documents to read')
-    config.add_argument('--threshold', default=100, type=int,
+    config.add_argument('--stemmer', default=True, type=bool,
+                        help='flag to toggle stemming')
+    config.add_argument('--upper', default=100, type=int,
                         help='words that occur more than x times get removed')
+    config.add_argument('--lower', default=20, type=int,
+                        help='words that occur less than x times get removed')
 
     # model related parameters
     config.add_argument('--num_topics', default=25, type=int,
@@ -163,7 +167,7 @@ if __name__ == '__main__':
                         help='Number of iterations over corpus')
     config.add_argument('--eval_every', default=5, type=int,
                         help='Print topics at intervals of ..')
-    config.add_argument('--num_words', default=20, type=int,
+    config.add_argument('--num_words', default=10, type=int,
                         help='Number of words to print per topic')
 
     args = config.parse_args()
