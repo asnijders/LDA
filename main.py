@@ -123,9 +123,10 @@ def main(config):
     print(' ')
 
     # load first 500 documents from corpus
-    dataset = DataModule(num_docs=config.num_docs)
+    dataset = DataModule(num_docs=config.num_docs,
+                         threshold=config.threshold)
 
-    print('\nVocabulary size: {} unique tokens\n'.format(len(dataset.vocab)))
+    print('Vocabulary size: {} unique tokens\n'.format(len(dataset.vocab)))
 
     # initialise LDA model
     LDAmodel = LDA(dataset=dataset,
@@ -146,19 +147,21 @@ if __name__ == '__main__':
     # data related parameters
     config.add_argument('--num_docs', default=500, type=int,
                         help='number of documents to read')
+    config.add_argument('--threshold', default=100, type=int,
+                        help='words that occur more than x times get removed')
 
     # model related parameters
     config.add_argument('--num_topics', default=25, type=int,
                         help='Number of topics to be learned')
     config.add_argument('--alpha', default=1.0, type=float,
                         help='Alpha parameter')
-    config.add_argument('--beta', default=1.0, type=float,
+    config.add_argument('--beta', default=0.02, type=float,
                         help='Beta parameter')
 
     # train related parameters
     config.add_argument('--iterations', default=500, type=int,
                         help='Number of iterations over corpus')
-    config.add_argument('--eval_every', default=10, type=int,
+    config.add_argument('--eval_every', default=5, type=int,
                         help='Print topics at intervals of ..')
     config.add_argument('--num_words', default=20, type=int,
                         help='Number of words to print per topic')
